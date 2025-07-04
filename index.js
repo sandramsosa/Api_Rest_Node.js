@@ -1,32 +1,20 @@
 import express from "express";
+import cors from "cors";
+import productsRouter from "./src/routes/products.router.js";
+
 const app = express();
 
-const products =[
-  {id:1, name: "Producto 1", price: 100},
-  {id:2, name: "Producto 2", price: 200},
-  {id:3, name: "Producto 3", price: 300}  
-]
+app.use(express.json());
+app.use(cors());
+app.use("/api", productsRouter);
 
 app.get('/', (req,res) =>{
   res.send('<h1>Hola a mi Api Rest</h1>');
 });
 
-app.get('/products', (req, res) =>{
-  res.json(products);
+app.use((req, res, next) => {
+  res.status(404).json({error: 'Not found'})
 });
-
-app.get('/products/:id', (req, res) =>{
-  const product = products.find((item) => item.id == req.params.id);
-  res.json(product);
-});
-
-
-
-
-
-
-
-
 
 const PORT = 3000;
 app.listen(PORT, () => console.log(`http://localhost:${PORT}`));

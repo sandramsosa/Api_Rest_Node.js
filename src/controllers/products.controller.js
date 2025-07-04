@@ -1,42 +1,34 @@
-const products = [
-  {id:1, name: "Uno 1", price: 100},
-  {id:2, name: "Dos 2", price: 200},
-  {id:3, name: "Tres 3", price: 300}  
-]
+import * as model from '../models/products.model.js'
 
-export const getAllProducts = (req, res) =>{
-  res.json(products);
+export const getAllProducts = (req, res) => {
+  res.json(model.getAllProducts());
 };
 
-export const searchProduct = (req, res) =>{
-  const {name} = req.query;
+export const searchProduct = (req, res) => {
+  const { name } = req.query;
+  const products = model.getAllProducts();
   const filteredProducts = products.filter((p) =>
-  p.name.toLowerCase().incluides(name.toLowerCase())
-);
+    p.name.toLowerCase().includes(name.toLowerCase())
+  );
   res.json(filteredProducts);
 };
 
-export const getProductById = (req, res) =>{
-  const {id} = req.params;
-  const product = products.find((item) => item.id == id);
+export const getProductById = (req, res) => {
+  const { id } = req.params;
+  const product = model.getProductById(id);
   if (!product) {
-    res.status(404).json({erro: 'No existe el producto'});
+    res.status(404).json({ error: "No existe el producto" });
   }
   res.json(product);
 };
 
-export const postProduct =(req, res) =>{
-  const {name, price} = req.body;
-  const newProduct ={
-    id: products.length + 1,
-    name,
-    price,
-  };
-  products.push(newProduct);
+export const createProduct = (req, res) => {
+  const { name, price } = req.body;
+  const newProduct = model.createProduct({ name, price });
   res.status(201).json(newProduct);
 };
 
-export const putProduct = (req,res) =>{
+export const updateProduct = (req,res) =>{
   const productId = parseInt(req.params.id, 10);
   const productIndex = products.findIndex((p) => p.id === productId);
   if (productIndex === -1) {
@@ -47,12 +39,11 @@ export const putProduct = (req,res) =>{
   res.json(products[productIndex]);
 };
 
-export const deleteProduct = (req,res) =>{
+export const deleteProduct = (req, res) => {
   const productId = parseInt(req.params.id, 10);
-  const productIndex = products.findIndex((p) => p.id === productId);
-  if (productIndex === -1) {
-    return res.status(404).json({error: 'Producto no encontrado'});
+  const product = model.deleteProduct(productId);
+  if (!product) {
+    return res.status(404).json({ error: "Producto no encontrado" });
   }
-  products.splice(productIndex, 1);
   res.status(204).send();
 };

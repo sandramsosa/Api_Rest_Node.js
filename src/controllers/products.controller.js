@@ -28,15 +28,18 @@ export const createProduct = (req, res) => {
   res.status(201).json(newProduct);
 };
 
-export const updateProduct = (req,res) =>{
+
+export const updateProduct = (req, res) => {
   const productId = parseInt(req.params.id, 10);
-  const productIndex = products.findIndex((p) => p.id === productId);
-  if (productIndex === -1) {
-    return res.status(404).json({error: 'Producto no encontrado'});
+  const { name, price } = req.body;
+
+  const updated = model.updateProduct(productId, name, price);
+
+  if (!updated) {
+    return res.status(404).json({ error: 'Producto no encontrado' });
   }
-  const {name, price} = req.body;
-  products[productIndex] = {id: productId, name, price};
-  res.json(products[productIndex]);
+
+  res.json(updated);
 };
 
 export const deleteProduct = (req, res) => {

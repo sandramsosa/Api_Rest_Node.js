@@ -25,6 +25,17 @@ export const createProduct = (data) => {
   return newProduct;
 };
 
+export const updateProduct = (id, name, price) => {
+  const productIndex = products.findIndex((p) => p.id === id);
+  if (productIndex === -1) {
+    return null;
+  }
+  products[productIndex] = { id, name, price };
+  fs.writeFileSync(jsonPath, JSON.stringify(products, null, 2));
+  return products[productIndex];
+};
+
+
 export const deleteProduct = (id) => {
   const productIndex = products.findIndex((p) => p.id === id);
   if (productIndex == -1) {

@@ -1,48 +1,69 @@
-import fs from "fs";
-import path from "path";
+import { db } from '../data/data.js';
+import {
+  collection,
+  getDocs,
+  getDoc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc
+} from 'firebase/firestore';
 
-const __dirname = import.meta.dirname;
+const productsCollection = collection(db, 'products');
 
-const jsonPath = path.join(__dirname, "./products.json");
-const json = fs.readFileSync(jsonPath, "utf-8");
-const products = JSON.parse(json);
+export async function getProductById(id) {
+  const productDoc = await getDoc(doc(productsCollection, id));
+  return productDoc.exists() ? { id: productDoc.id, ...productDoc.data() } : null;
+}
 
-export const getAllProducts = () => {
+export async function getAllProducts() {
+  const querySnapshot = await getDocs(productsCollection);
+  const products = [];
+  querySnapshot.forEach((doc) => {
+    products.push({ id: doc.id, ...doc.data() });
+  });
   return products;
-};
+}
 
-export const getProductById = (id) => {
-  return products.find((item) => item.id == id);
-};
-
-export const createProduct = (data) => {
-  const newProduct = {
-    id: products.length + 1,
-    ...data,
-  };
-  products.push(newProduct);
-  fs.writeFileSync(jsonPath, JSON.stringify(products));
-  return newProduct;
-};
-
-export const updateProduct = (id, name, price) => {
-  const productIndex = products.findIndex((p) => p.id === id);
-  if (productIndex === -1) {
+export async function createProduct(product) {
+  try {
+    const docRef = await addDoc(productsCollection, product);
+    return { id: docRef.id, ...product };
+  } catch (error) {
+    console.error("Error al crear el producto:", error);
     return null;
   }
-  products[productIndex] = { id, name, price };
-  fs.writeFileSync(jsonPath, JSON.stringify(products, null, 2));
-  return products[productIndex];
-};
+}
 
-
-export const deleteProduct = (id) => {
-  const productIndex = products.findIndex((p) => p.id === id);
-  if (productIndex == -1) {
+export const updateProduct = async (id, trademark, name, price, categories) => {
+  try {
+    const productRef = doc(productsCollection, id);
+    await updateDoc(productRef, {
+      trademark,
+      name,
+      price,
+      categories
+    });
+    return {
+      id,
+      trademark,
+      name,
+      price,
+      categories
+    };
+  } catch (error) {
+    console.error("Error al actualizar el producto:", error);
     return null;
-  } else {
-    const product = products.splice(productIndex, 1);
-    fs.writeFileSync(jsonPath, JSON.stringify(products));
-    return product;
   }
 };
+
+export async function deleteProduct(id) {
+  try {
+    await deleteDoc(doc(productsCollection, id));
+    return true;
+  } catch (error) {
+    console.error("Error al eliminar el producto:", error);
+    return false;
+  }
+}
+

@@ -1,52 +1,85 @@
 import * as model from '../models/products.model.js'
 
-export const getAllProducts = (req, res) => {
-  res.json(model.getAllProducts());
-};
-
-export const searchProduct = (req, res) => {
-  const { name } = req.query;
-  const products = model.getAllProducts();
-  const filteredProducts = products.filter((p) =>
-    p.name.toLowerCase().includes(name.toLowerCase())
-  );
-  res.json(filteredProducts);
-};
-
-export const getProductById = (req, res) => {
-  const { id } = req.params;
-  const product = model.getProductById(id);
-  if (!product) {
-    res.status(404).json({ error: "No existe el producto" });
+export const getAllProducts = async (req, res) => {
+  try {
+    const products = await model.getAllProducts();
+    res.status(200).json(products);
+  } catch (error) {
+    console.error("Error al obtener productos:", error);
+    res.status(500).json({ error: "Error al obtener productos" });
   }
-  res.json(product);
 };
 
-export const createProduct = (req, res) => {
-  const { name, price } = req.body;
-  const newProduct = model.createProduct({ name, price });
-  res.status(201).json(newProduct);
-};
-
-
-export const updateProduct = (req, res) => {
-  const productId = parseInt(req.params.id, 10);
-  const { name, price } = req.body;
-
-  const updated = model.updateProduct(productId, name, price);
-
-  if (!updated) {
-    return res.status(404).json({ error: 'Producto no encontrado' });
+export const searchProduct = async (req, res) => {
+  try {
+    const { name } = req.query;
+    const products = await model.getAllProducts(); 
+    const filteredProducts = products.filter((p) =>
+      p.name.toLowerCase().includes(name.toLowerCase())
+    );
+    res.json(filteredProducts);
+  } catch (error) {
+    console.error("Error al buscar producto:", error);
+    res.status(500).json({ error: "Error al buscar producto" });
   }
-
-  res.json(updated);
 };
 
-export const deleteProduct = (req, res) => {
-  const productId = parseInt(req.params.id, 10);
-  const product = model.deleteProduct(productId);
-  if (!product) {
-    return res.status(404).json({ error: "Producto no encontrado" });
+export const getProductById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const product = await model.getProductById(id); 
+    if (!product) {
+      return res.status(404).json({ error: "No existe el producto" });
+    }
+    res.json(product);
+  } catch (error) {
+    console.error("Error al obtener producto por ID:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
   }
-  res.status(204).send();
+};
+
+export const createProduct = async (req, res) => {
+  try {
+    const { trademark, name, price, categories } = req.body;
+    await model.createProduct({ trademark, name, price, categories }); 
+    res.status(201).json({ message: "Producto creado con éxito" });
+  } catch (error) {
+    console.error("Error al crear producto:", error);
+    res.status(500).json({ error: "Error al crear producto" });
+  }
+};
+
+export const updateProduct = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const { trademark, name, price, categories } = req.body;
+
+    const updated = await model.updateProduct(productId, trademark, name, price, categories); 
+
+    if (!updated) {
+      return res.status(404).json({ error: "Producto no encontrado" });
+    }
+
+    res.json({
+      message: "Producto actualizado con éxito",
+      product: updated
+    });
+  } catch (error) {
+    console.error("Error al actualizar producto:", error);
+    res.status(500).json({ error: "Error al actualizar producto" });
+  }
+};
+
+export const deleteProduct = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const deleted = await model.deleteProduct(productId); 
+    if (!deleted) {
+      return res.status(404).json({ error: "Producto no encontrado" });
+    }
+    res.status(200).json({ message: "Producto borrado con éxito" });
+  } catch (error) {
+    console.error("Error al borrar producto:", error);
+    res.status(500).json({ error: "Error al borrar producto" });
+  }
 };

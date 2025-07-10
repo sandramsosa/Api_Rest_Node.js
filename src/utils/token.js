@@ -11,4 +11,4 @@ export const generateToken = (userData) => {
   };
   const expiration = {expiresIn: '1h'};
   return jwt.sign(user, secret_key, expiration);
-}
+};

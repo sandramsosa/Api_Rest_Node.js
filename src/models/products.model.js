@@ -14,7 +14,7 @@ const productsCollection = collection(db, 'products');
 export async function getProductById(id) {
   const productDoc = await getDoc(doc(productsCollection, id));
   return productDoc.exists() ? { id: productDoc.id, ...productDoc.data() } : null;
-}
+};
 
 export async function getAllProducts() {
   const querySnapshot = await getDocs(productsCollection);
@@ -23,7 +23,7 @@ export async function getAllProducts() {
     products.push({ id: doc.id, ...doc.data() });
   });
   return products;
-}
+};
 
 export async function createProduct(product) {
   try {
@@ -33,7 +33,7 @@ export async function createProduct(product) {
     console.error("Error al crear el producto:", error);
     return null;
   }
-}
+};
 
 export const updateProduct = async (id, trademark, name, price, categories) => {
   try {
@@ -65,5 +65,5 @@ export async function deleteProduct(id) {
     console.error("Error al eliminar el producto:", error);
     return false;
   }
-}
+};
 

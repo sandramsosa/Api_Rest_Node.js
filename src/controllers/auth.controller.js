@@ -4,7 +4,7 @@ const default_user = {
   id: 1,
   email: 'user@email.com',
   password: 'strongPass123'
-}
+};
 
 export async function login(req, res) {
   const {email, password} = req.body;
@@ -16,4 +16,4 @@ export async function login(req, res) {
   } else {
     res.sendStatus(401);
   }
-}
+};
